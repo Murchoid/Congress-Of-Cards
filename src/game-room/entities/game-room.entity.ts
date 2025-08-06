@@ -1,7 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
-import { GameState } from './game-state.entity';
-import { GameHistory } from './game-history.entity';
+import { GameHistory } from 'src/game-history/entities/game-history.entity';
+import { User } from 'src/user/entities/user.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 
 export enum GameRoomStatus {
   WAITING = 'waiting',
@@ -37,9 +45,7 @@ export class GameRoom {
   @Column({ type: 'enum', enum: GameRoomStatus, default: GameRoomStatus.WAITING })
   status: GameRoomStatus;
 
-  @Column({ type: 'jsonb', default: [] })
-  playerIds: string[];
-
+  // Room-level settings like round time, game mode, etc.
   @Column({ type: 'jsonb', default: {} })
   gameSettings: Record<string, any>;
 
@@ -55,9 +61,9 @@ export class GameRoom {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => GameState, (gameState) => gameState.room)
-  gameStates: GameState[];
-
   @OneToMany(() => GameHistory, (history) => history.room)
   gameHistory: GameHistory[];
+
+  @OneToMany(() => GameState, (gameState) => gameState.room)
+  gameStates: GameState[];
 }

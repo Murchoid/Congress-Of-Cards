@@ -1,63 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { GameRoom } from './entities/game-room.entity';
 import { CreateGameRoomDto } from './dto/create-game-room.dto';
 import { UpdateGameRoomDto } from './dto/update-game-room.dto';
 
-export interface Player {
-  socketId: string;
-  username: string;
-}
-
-export interface GameRoom {
-  id: string;
-  hostId: string;
-  players: Player[];
-}
-
 @Injectable()
 export class GameRoomService {
-  private gameRooms: GameRoom[] = [];
+  constructor(
+    @InjectRepository(GameRoom)
+    private readonly gameRoomRepo: Repository<GameRoom>,
+  ) {}
 
-  createRoom(roomId: string, hostId: string): GameRoom {
-    const newRoom: GameRoom = {
-      id: roomId,
-      hostId,
-      players: [],
-    };
-    this.gameRooms.push(newRoom);
-    return newRoom;
+  async create(createGameRoomDto: CreateGameRoomDto): Promise<GameRoom> {
+    const room = this.gameRoomRepo.create(createGameRoomDto);
+    return this.gameRoomRepo.save(room);
   }
 
-  getRoom(roomId: string): GameRoom | undefined {
-    return this.gameRooms.find(room => room.id === roomId);
+  async findAll(): Promise<GameRoom[]> {
+    return this.gameRoomRepo.find({ relations: ['host', 'gameHistory'] });
   }
 
-  findOne(roomId: string): GameRoom | undefined {
-    return this.getRoom(roomId);
+  async findOne(id: string): Promise<GameRoom | null> {
+    return this.gameRoomRepo.findOne({ where: { id }, relations: ['host', 'gameHistory'] });
   }
 
-  addPlayerToRoom(roomId: string, player: Player): GameRoom | undefined {
-    const room = this.getRoom(roomId);
-    if (room) {
-      room.players.push(player);
-      return room;
-    }
-    return undefined;
+  async update(id: string, updateGameRoomDto: UpdateGameRoomDto): Promise<GameRoom | null> {
+    await this.gameRoomRepo.update(id, updateGameRoomDto);
+    return this.findOne(id);
   }
 
-  removePlayerFromRoom(roomId: string, socketId: string): GameRoom | undefined {
-    const room = this.getRoom(roomId);
-    if (room) {
-      room.players = room.players.filter(p => p.socketId !== socketId);
-      return room;
-    }
-    return undefined;
-  }
-
-  deleteRoom(roomId: string): void {
-    this.gameRooms = this.gameRooms.filter(room => room.id !== roomId);
-  }
-
-  getAllRooms(): GameRoom[] {
-    return this.gameRooms;
+  async remove(id: string): Promise<void> {
+    await this.gameRoomRepo.delete(id);
   }
 }
