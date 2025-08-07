@@ -17,7 +17,10 @@ export class liveGameRoomService {
     return newRoom;
   }
 
-  updateRoom(roomId: string, updateLiveGameRoomDto: UpdateLiveGameRoomDto): liveGameRoom | undefined {
+  updateRoom(
+    roomId: string,
+    updateLiveGameRoomDto: UpdateLiveGameRoomDto,
+  ): liveGameRoom | undefined {
     const room = this.getRoom(roomId);
     if (room) {
       room.hostId = updateLiveGameRoomDto.hostId || room.hostId;
@@ -27,7 +30,7 @@ export class liveGameRoomService {
   }
 
   getRoom(roomId: string): liveGameRoom | undefined {
-    return this.liveGameRooms.find(room => room.roomId === roomId);
+    return this.liveGameRooms.find((room) => room.roomId === roomId);
   }
 
   findOne(roomId: string): liveGameRoom | undefined {
@@ -43,17 +46,22 @@ export class liveGameRoomService {
     return undefined;
   }
 
-  removePlayerFromRoom(roomId: string, socketId: string): liveGameRoom | undefined {
+  removePlayerFromRoom(
+    roomId: string,
+    socketId: string,
+  ): liveGameRoom | undefined {
     const room = this.getRoom(roomId);
     if (room) {
-      room.players = room.players.filter(p => p.socketId !== socketId);
+      room.players = room.players.filter((p) => p.socketId !== socketId);
       return room;
     }
     return undefined;
   }
 
   deleteRoom(roomId: string): void {
-    this.liveGameRooms = this.liveGameRooms.filter(room => room.roomId !== roomId);
+    this.liveGameRooms = this.liveGameRooms.filter(
+      (room) => room.roomId !== roomId,
+    );
   }
 
   getAllRooms(): liveGameRoom[] {

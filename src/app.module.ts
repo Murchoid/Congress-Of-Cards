@@ -6,9 +6,24 @@ import { GameHistoryModule } from './game-history/game-history.module';
 import { GameStateModule } from './game-state/game-state.module';
 import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { LiveGameRoomModule } from './live-game-room/live-game-room.module';
+import { AuthsModule } from './auths/auths.module';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [GameRoomModule, UserModule, GameHistoryModule, GameStateModule, PlayerStatsModule, LiveGameRoomModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    DatabaseModule,
+    GameRoomModule,
+    UserModule,
+    GameHistoryModule,
+    GameStateModule,
+    PlayerStatsModule,
+    LiveGameRoomModule,
+    AuthsModule,
+  ],
   controllers: [],
   providers: [AppService],
 })

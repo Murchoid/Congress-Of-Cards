@@ -1,4 +1,4 @@
-import {
+/*import {
   WebSocketGateway,
   WebSocketServer,
   SubscribeMessage,
@@ -43,16 +43,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const { roomId, userId } = data;
-    
+
     try {
       await client.join(roomId);
       this.connectedUsers.set(client.id, userId);
-      
+
       const gameState = await this.gameService.getGameState(roomId);
-      
+
       client.emit('joined-room', { roomId, gameState });
       client.to(roomId).emit('player-joined', { userId });
-      
+
       console.log(`User ${userId} joined room ${roomId}`);
     } catch (error) {
       client.emit('error', { message: 'Failed to join room' });
@@ -61,7 +61,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('play-card')
   async handlePlayCard(
-    @MessageBody() data: { gameStateId: string; playerId: string; cardId: string },
+    @MessageBody()
+    data: { gameStateId: string; playerId: string; cardId: string },
     @ConnectedSocket() client: Socket,
   ) {
     try {
@@ -70,10 +71,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data.playerId,
         data.cardId,
       );
-      
+
       // Broadcast updated game state to all players in the room
       this.server.to(gameState.roomId).emit('game-state-updated', gameState);
-      
+
       if (gameState.winnerId) {
         this.server.to(gameState.roomId).emit('game-finished', {
           winnerId: gameState.winnerId,
@@ -95,7 +96,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data.gameStateId,
         data.playerId,
       );
-      
+
       this.server.to(gameState.roomId).emit('game-state-updated', gameState);
     } catch (error) {
       client.emit('error', { message: error.message });
@@ -114,7 +115,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       const gameState = await this.gameService.startGame(data.roomId);
-      
+
       this.server.to(data.roomId).emit('game-started', gameState);
     } catch (error) {
       client.emit('error', { message: error.message });
@@ -129,9 +130,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       await client.leave(data.roomId);
       this.connectedUsers.delete(client.id);
-      
+
       client.to(data.roomId).emit('player-left', { userId: data.userId });
-      
+
       console.log(`User ${data.userId} left room ${data.roomId}`);
     } catch (error) {
       client.emit('error', { message: 'Failed to leave room' });
@@ -151,3 +152,4 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 }
+*/

@@ -1,4 +1,4 @@
-import { CardSuit, CardValue } from "src/game-state/entities/game-state.entity";
+import { CardSuit, CardValue } from 'src/game-state/entities/game-state.entity';
 
 export interface Player {
   socketId: string;
@@ -10,7 +10,6 @@ export interface liveGameRoom {
   hostId: string;
   players: Player[];
 }
-
 
 export interface Card {
   id: string;

@@ -1,22 +1,24 @@
+/*
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GameHistory, MoveType } from 'src/game-history/entities/game-history.entity';
+import { GameRoomStatus } from 'src/game-room/entities/game-room.entity';
+import { CardSuit, CardValue, GamePhase, GameState } from 'src/game-state/entities/game-state.entity';
+import { Card, PlayerHand } from 'src/interfaces/interfaces.interface';
+import { liveGameRoomService } from 'src/live-game-room/live-game-room.service';
 import { Repository } from 'typeorm';
-import { GameState, GamePhase, Card, CardSuit, CardValue, PlayerHand } from '../entities/game-state.entity';
-import { GameRoom, GameRoomStatus } from '../entities/game-room.entity';
-import { GameHistory, MoveType } from '../entities/game-history.entity';
 
 @Injectable()
 export class GameService {
   constructor(
     @InjectRepository(GameState)
     private gameStateRepo: Repository<GameState>,
-    @InjectRepository(GameRoom)
-    private gameRoomRepo: Repository<GameRoom>,
+    private livegameRoomService: liveGameRoomService,
     @InjectRepository(GameHistory)
     private gameHistoryRepo: Repository<GameHistory>,
   ) {}
 
-  async createDeck(): Promise<Card[]> {
+  /*async createDeck(): Promise<Card[]> {
     const deck: Card[] = [];
     const suits = Object.values(CardSuit);
     const values = Object.values(CardValue);
@@ -37,15 +39,32 @@ export class GameService {
 
     // Add jokers
     deck.push(
-      { id: 'joker-1', suit: CardSuit.HEARTS, value: CardValue.JOKER, isSpecial: true },
-      { id: 'joker-2', suit: CardSuit.SPADES, value: CardValue.JOKER, isSpecial: true },
+      {
+        id: 'joker-1',
+        suit: CardSuit.HEARTS,
+        value: CardValue.JOKER,
+        isSpecial: true,
+      },
+      {
+        id: 'joker-2',
+        suit: CardSuit.SPADES,
+        value: CardValue.JOKER,
+        isSpecial: true,
+      },
     );
 
     return this.shuffleDeck(deck);
   }
 
   private isSpecialCard(value: CardValue): boolean {
-    return [CardValue.ACE, CardValue.TWO, CardValue.THREE, CardValue.EIGHT, CardValue.KING, CardValue.JOKER].includes(value);
+    return [
+      CardValue.ACE,
+      CardValue.TWO,
+      CardValue.THREE,
+      CardValue.EIGHT,
+      CardValue.KING,
+      CardValue.JOKER,
+    ].includes(value);
   }
 
   private shuffleDeck(deck: Card[]): Card[] {
@@ -58,7 +77,7 @@ export class GameService {
   }
 
   async startGame(roomId: string): Promise<GameState> {
-    const room = await this.gameRoomRepo.findOne({ where: { id: roomId } });
+    const room = await this.livegameRoomService.findOne(roomId);
     if (!room) throw new BadRequestException('Room not found');
 
     const deck = await this.createDeck();
@@ -66,15 +85,15 @@ export class GameService {
     const cardsPerPlayer = 7;
 
     // Deal cards to players
-    for (let i = 0; i < room.playerIds.length; i++) {
-      const playerId = room.playerIds[i];
+    for (let i = 0; i < room.players.length; i++) {
+      const playerId = room.players[i].socketId;
       const hand: Card[] = [];
-      
+
       for (let j = 0; j < cardsPerPlayer; j++) {
         const card = deck.pop();
         if (card) hand.push(card);
       }
-      
+
       playerHands.push({
         playerId,
         cards: hand,
@@ -87,10 +106,10 @@ export class GameService {
     const discardPile = firstCard ? [firstCard] : [];
 
     const gameState = this.gameStateRepo.create({
-      roomId,
-      phase: GamePhase.PLAYING,
-      currentPlayerId: room.playerIds[0],
-      playerOrder: [...room.playerIds],
+      //roomId,
+      //phase: GamePhase.PLAYING,
+      currentPlayerId: room.players[0],
+      playerOrder: [...room.players],
       playerHands,
       discardPile,
       drawPile: deck,
@@ -102,32 +121,42 @@ export class GameService {
     });
 
     await this.gameStateRepo.save(gameState);
-    
+
     // Update room status
-    room.status = GameRoomStatus.IN_PROGRESS;
-    await this.gameRoomRepo.save(room);
+    //room.status = GameRoomStatus.IN_PROGRESS;
+    //await this.livegameRoomService.sliveGameRoomServiceave(room);
 
     return gameState;
   }
 
-  async playCard(gameStateId: string, playerId: string, cardId: string): Promise<GameState> {
-    const gameState = await this.gameStateRepo.findOne({ where: { id: gameStateId } });
+  async playCard(
+    gameStateId: string,
+    playerId: string,
+    cardId: string,
+  ): Promise<GameState> {
+    const gameState = await this.gameStateRepo.findOne({
+      where: { id: gameStateId },
+    });
     if (!gameState) throw new BadRequestException('Game state not found');
 
     if (gameState.currentPlayerId !== playerId) {
       throw new BadRequestException('Not your turn');
     }
 
-    const playerHand = gameState.playerHands.find(h => h.playerId === playerId);
+    const playerHand = gameState.playerHands.find(
+      (h) => h.playerId === playerId,
+    );
     if (!playerHand) throw new BadRequestException('Player hand not found');
 
-    const cardIndex = playerHand.cards.findIndex(c => c.id === cardId);
+    const cardIndex = playerHand.cards.findIndex((c) => c.id === cardId);
     if (cardIndex === -1) throw new BadRequestException('Card not in hand');
 
     const card = playerHand.cards[cardIndex];
-    
+
     // Validate card can be played
-    if (!this.canPlayCard(card, gameState.lastPlayedCard, gameState.attackStack)) {
+    if (
+      !this.canPlayCard(card, gameState.lastPlayedCard, gameState.attackStack)
+    ) {
       throw new BadRequestException('Invalid card play');
     }
 
@@ -155,17 +184,28 @@ export class GameService {
     await this.gameStateRepo.save(gameState);
 
     // Record move in history
-    await this.recordMove(gameState.roomId, playerId, MoveType.PLAY_CARD, { cardId, card });
+    await this.recordMove(gameState.roomId, playerId, MoveType.PLAY_CARD, {
+      cardId,
+      card,
+    });
 
     return gameState;
   }
 
-  private canPlayCard(card: Card, lastCard: Card | undefined, attackStack: number): boolean {
+  private canPlayCard(
+    card: Card,
+    lastCard: Card | undefined,
+    attackStack: number,
+  ): boolean {
     if (!lastCard) return true;
-    
+
     // If under attack, can only play attack cards or matching suit/value
     if (attackStack > 0) {
-      return this.isAttackCard(card) || card.suit === lastCard.suit || card.value === lastCard.value;
+      return (
+        this.isAttackCard(card) ||
+        card.suit === lastCard.suit ||
+        card.value === lastCard.value
+      );
     }
 
     // Wild cards (Aces) can always be played
@@ -176,10 +216,16 @@ export class GameService {
   }
 
   private isAttackCard(card: Card): boolean {
-    return [CardValue.TWO, CardValue.THREE, CardValue.JOKER].includes(card.value);
+    return [CardValue.TWO, CardValue.THREE, CardValue.JOKER].includes(
+      card.value,
+    );
   }
 
-  private async applyCardEffects(gameState: GameState, card: Card, playerId: string): Promise<void> {
+  private async applyCardEffects(
+    gameState: GameState,
+    card: Card,
+    playerId: string,
+  ): Promise<void> {
     switch (card.value) {
       case CardValue.TWO:
         gameState.attackStack += 2;
@@ -202,25 +248,33 @@ export class GameService {
   }
 
   private moveToNextPlayer(gameState: GameState): void {
-    const currentIndex = gameState.playerOrder.indexOf(gameState.currentPlayerId);
-    const nextIndex = (currentIndex + gameState.direction + gameState.playerOrder.length) % gameState.playerOrder.length;
+    const currentIndex = gameState.playerOrder.indexOf(
+      gameState.currentPlayerId,
+    );
+    const nextIndex =
+      (currentIndex + gameState.direction + gameState.playerOrder.length) %
+      gameState.playerOrder.length;
     gameState.currentPlayerId = gameState.playerOrder[nextIndex];
   }
 
   async drawCard(gameStateId: string, playerId: string): Promise<GameState> {
-    const gameState = await this.gameStateRepo.findOne({ where: { id: gameStateId } });
+    const gameState = await this.gameStateRepo.findOne({
+      where: { id: gameStateId },
+    });
     if (!gameState) throw new BadRequestException('Game state not found');
 
     if (gameState.currentPlayerId !== playerId) {
       throw new BadRequestException('Not your turn');
     }
 
-    const playerHand = gameState.playerHands.find(h => h.playerId === playerId);
+    const playerHand = gameState.playerHands.find(
+      (h) => h.playerId === playerId,
+    );
     if (!playerHand) throw new BadRequestException('Player hand not found');
 
     // Draw cards (including attack stack)
     const cardsToDraw = Math.max(1, gameState.attackStack);
-    
+
     for (let i = 0; i < cardsToDraw; i++) {
       if (gameState.drawPile.length === 0) {
         // Reshuffle discard pile except top card
@@ -238,20 +292,27 @@ export class GameService {
 
     // Reset attack stack
     gameState.attackStack = 0;
-    
+
     // Move to next player
     this.moveToNextPlayer(gameState);
-    
+
     gameState.turnCount++;
     await this.gameStateRepo.save(gameState);
 
     // Record move in history
-    await this.recordMove(gameState.roomId, playerId, MoveType.DRAW_CARD, { cardsDrawn: cardsToDraw });
+    await this.recordMove(gameState.roomId, playerId, MoveType.DRAW_CARD, {
+      cardsDrawn: cardsToDraw,
+    });
 
     return gameState;
   }
 
-  private async recordMove(roomId: string, playerId: string, moveType: MoveType, moveData?: Record<string, any>): Promise<void> {
+  private async recordMove(
+    roomId: string,
+    playerId: string,
+    moveType: MoveType,
+    moveData?: Record<string, any>,
+  ): Promise<void> {
     const gameHistory = this.gameHistoryRepo.create({
       roomId,
       playerId,
@@ -264,9 +325,11 @@ export class GameService {
   }
 
   async getGameState(roomId: string): Promise<GameState | null> {
-    return await this.gameStateRepo.findOne({ 
+    return await this.gameStateRepo.findOne({
       where: { roomId },
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     });
   }
+    
 }
+  */

@@ -1,5 +1,5 @@
-import { IsString } from "class-validator";
-import { Card, PlayerHand } from "src/interfaces/interfaces.interface";
+import { IsString } from 'class-validator';
+import { Card, PlayerHand } from 'src/interfaces/interfaces.interface';
 
 export class CreateGameStateDto {
   @IsString()
@@ -12,7 +12,7 @@ export class CreateGameStateDto {
   playerOrder: string[];
 
   playerHands: PlayerHand[];
-  
+
   discardPile: Card[];
 
   drawPile: Card[];

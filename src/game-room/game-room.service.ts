@@ -22,10 +22,16 @@ export class GameRoomService {
   }
 
   async findOne(id: string): Promise<GameRoom | null> {
-    return this.gameRoomRepo.findOne({ where: { id }, relations: ['host', 'gameHistory'] });
+    return this.gameRoomRepo.findOne({
+      where: { id },
+      relations: ['host', 'gameHistory'],
+    });
   }
 
-  async update(id: string, updateGameRoomDto: UpdateGameRoomDto): Promise<GameRoom | null> {
+  async update(
+    id: string,
+    updateGameRoomDto: UpdateGameRoomDto,
+  ): Promise<GameRoom | null> {
     await this.gameRoomRepo.update(id, updateGameRoomDto);
     return this.findOne(id);
   }

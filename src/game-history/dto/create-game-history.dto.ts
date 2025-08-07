@@ -1,4 +1,11 @@
-import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean, IsObject } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsBoolean,
+  IsObject,
+} from 'class-validator';
 import { MoveType } from '../entities/game-history.entity';
 
 export class CreateGameHistoryDto {

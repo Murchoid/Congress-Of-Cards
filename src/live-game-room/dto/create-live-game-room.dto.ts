@@ -1,9 +1,9 @@
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator';
 
 export class CreateLiveGameRoomDto {
-    @IsString()
-    roomId: string;
+  @IsString()
+  roomId: string;
 
-    @IsString()
-    hostId: string;
+  @IsString()
+  hostId: string;
 }

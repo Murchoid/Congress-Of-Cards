@@ -1,7 +1,14 @@
 import { GameHistory } from 'src/game-history/entities/game-history.entity';
 import { GameRoom } from 'src/game-room/entities/game-room.entity';
 import { PlayerStats } from 'src/player-stats/entities/player-stat.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 
 @Entity('users')
 export class User {

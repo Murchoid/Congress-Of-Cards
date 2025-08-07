@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsEnum, IsBoolean, IsNumber, IsObject, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsBoolean,
+  IsNumber,
+  IsObject,
+  Min,
+  Max,
+} from 'class-validator';
 import { GameRoomStatus } from '../entities/game-room.entity';
 
 export class CreateGameRoomDto {
@@ -14,7 +23,7 @@ export class CreateGameRoomDto {
 
   @IsNumber()
   @Min(2)
-  @Max(8) 
+  @Max(8)
   maxPlayers: number;
 
   @IsNumber()

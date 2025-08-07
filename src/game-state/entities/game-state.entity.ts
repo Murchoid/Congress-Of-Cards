@@ -1,6 +1,14 @@
 import { GameRoom } from 'src/game-room/entities/game-room.entity';
 import { Card, PlayerHand } from 'src/interfaces/interfaces.interface';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 export enum GamePhase {
   WAITING = 'waiting',

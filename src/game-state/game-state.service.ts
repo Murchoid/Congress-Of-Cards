@@ -25,7 +25,10 @@ export class GameStateService {
     return this.gameStates.get(roomId);
   }
 
-  updateState(roomId: string, updater: (state: GameState) => void): GameState | undefined {
+  updateState(
+    roomId: string,
+    updater: (state: GameState) => void,
+  ): GameState | undefined {
     const state = this.gameStates.get(roomId);
     if (!state) return;
     updater(state);
@@ -34,7 +37,7 @@ export class GameStateService {
 
   persistState(roomId: string): Promise<GameState | undefined> {
     const state = this.gameStates.get(roomId);
-    if (!state) return;
+    if (!state) throw new Error(`No game state found for room ${roomId}`);
     return this.gameStateRepo.save(state);
   }
 }

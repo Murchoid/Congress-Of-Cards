@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePlayerStatDto } from './dto/create-player-stat.dto';
 import { UpdatePlayerStatDto } from './dto/update-player-stat.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PlayerStats } from './entities/player-stat.entity';
+import { Repository } from 'typeorm/repository/Repository';
 
 @Injectable()
 export class PlayerStatsService {
+  constructor(
+    @InjectRepository(PlayerStats)
+    private readonly playerStatsRepository: Repository<PlayerStats>,
+  ) {}
   create(createPlayerStatDto: CreatePlayerStatDto) {
-    return 'This action adds a new playerStat';
+    const playerStat = this.playerStatsRepository.create(createPlayerStatDto);
+    return this.playerStatsRepository.save(playerStat);
   }
 
   findAll() {
-    return `This action returns all playerStats`;
+    return this.playerStatsRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} playerStat`;
+  findOne(id: string) {
+    return this.playerStatsRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updatePlayerStatDto: UpdatePlayerStatDto) {
-    return `This action updates a #${id} playerStat`;
+  update(id: string, updatePlayerStatDto: UpdatePlayerStatDto) {
+    return this.playerStatsRepository.update(id, updatePlayerStatDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} playerStat`;
+  remove(id: string) {
+    return this.playerStatsRepository.delete(id);
   }
 }

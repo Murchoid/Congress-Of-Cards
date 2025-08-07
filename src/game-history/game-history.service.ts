@@ -11,7 +11,9 @@ export class GameHistoryService {
     private readonly historyRepo: Repository<GameHistory>,
   ) {}
 
-  async create(createGameHistoryDto: CreateGameHistoryDto): Promise<GameHistory> {
+  async create(
+    createGameHistoryDto: CreateGameHistoryDto,
+  ): Promise<GameHistory> {
     const gameHistory = this.historyRepo.create(createGameHistoryDto);
     return this.historyRepo.save(gameHistory);
   }

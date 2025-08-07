@@ -1,28 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
-
-  @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  async getProfile(@Request() req) {
-    return await this.usersService.findOne(req.user.userId);
+  constructor(private readonly usersService: UserService) {}
+  
+  @Post('register')
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
-  @Patch('profile')
-  @UseGuards(JwtAuthGuard)
-  async updateProfile(@Body() updateUserDto: UpdateUserDto, @Request() req) {
-    return await this.usersService.update(req.user.userId, updateUserDto);
+  @Get('profile/:id')
+  async getProfile(@Param('id') id: string) {
+    return await this.usersService.findOne(id);
   }
 
-  @Get('stats')
-  @UseGuards(JwtAuthGuard)
-  async getStats(@Request() req) {
-    return await this.usersService.getUserStats(req.user.userId);
+  @Patch('profile/:id')
+  async updateProfile(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.usersService.update(id, updateUserDto);
+  }
+
+  @Get('stats/:id')
+  async getStats(@Param('id') id: string) {
+    return await this.usersService.getUserStats(id);
   }
 
   @Get('leaderboard')

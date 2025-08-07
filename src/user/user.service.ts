@@ -12,15 +12,23 @@ export class UserService {
     return `This action returns all user`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: string, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} user`;
+  }
+
+  getUserStats(id: string) {
+    return `This action return stats for a #${id} user`
+  }
+  
+  getLeaderboard() {
+    return `This action returns the leaderboard for users`
   }
 }

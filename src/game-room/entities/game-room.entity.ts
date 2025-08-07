@@ -1,4 +1,5 @@
 import { GameHistory } from 'src/game-history/entities/game-history.entity';
+import { GameState } from 'src/game-state/entities/game-state.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
@@ -42,7 +43,11 @@ export class GameRoom {
   @Column({ default: 2 })
   minPlayers: number;
 
-  @Column({ type: 'enum', enum: GameRoomStatus, default: GameRoomStatus.WAITING })
+  @Column({
+    type: 'enum',
+    enum: GameRoomStatus,
+    default: GameRoomStatus.WAITING,
+  })
   status: GameRoomStatus;
 
   // Room-level settings like round time, game mode, etc.
