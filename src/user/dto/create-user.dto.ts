@@ -21,4 +21,7 @@ export class CreateUserDto {
 
   @IsBoolean()
   isActive?: boolean;
+
+  @IsString()
+  refreshToken?: string
 }

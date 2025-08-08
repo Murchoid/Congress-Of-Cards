@@ -9,6 +9,8 @@ import { LiveGameRoomModule } from './live-game-room/live-game-room.module';
 import { AuthsModule } from './auths/auths.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AtGuard } from './auths/guards';
 
 @Module({
   imports: [
@@ -25,6 +27,11 @@ import { DatabaseModule } from './database/database.module';
     AuthsModule,
   ],
   controllers: [],
-  providers: [AppService],
+  providers: [AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
+    }
+  ],
 })
 export class AppModule {}

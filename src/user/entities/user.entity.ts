@@ -39,6 +39,9 @@ export class User {
   @Column({ nullable: true })
   lastLoginAt?: Date;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -1,0 +1,26 @@
+@url=http://localhost:3000
+@auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZjVmMTJlNC00NzA4LTQzMjAtOTYxMS0zODM4NjJhYmUyN2QiLCJlbWFpbCI6Im1pY2hhZWxAZXhhbXBsZS5jb20iLCJ1c2VybmFtZSI6Ik1pY2hhZWwiLCJpc0FjdGl2ZSI6dHJ1ZSwiaWF0IjoxNzU0NjU3MzMwLCJleHAiOjE3NTQ2NTczMzZ9.XePFdbF7JzAmGBOlaofjM_mBjufABgOCZW6LjeDhB1g
+
+###Create users
+POST {{url}}/users/register
+Content-Type: application/json
+
+{
+  "username": "Michael",
+  "email": "michael@example.com",
+  "password": "securePassword123"
+}
+
+###Update a user
+GET {{url}}/users
+Authorization: Bearer {{auth}}
+
+
+###Create users
+POST {{url}}/auths/signin
+Content-Type: application/json
+
+{
+  "username": "Michael",
+  "password": "securePassword123"
+}
