@@ -7,13 +7,25 @@ import { GameStateModule } from './game-state/game-state.module';
 import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { LiveGameRoomModule } from './live-game-room/live-game-room.module';
 import { AuthsModule } from './auths/auths.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './auths/guards';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => [
+        {
+          ttl: configService.getOrThrow<number>('T_TTL'),
+          limit: configService.getOrThrow<number>('T_LIMIT'),
+        },
+      ],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -25,12 +37,17 @@ import { AtGuard } from './auths/guards';
     PlayerStatsModule,
     LiveGameRoomModule,
     AuthsModule,
+    CaslModule,
   ],
   controllers: [],
   providers: [AppService,
     {
       provide: APP_GUARD,
       useClass: AtGuard,
+    },
+     {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     }
   ],
 })

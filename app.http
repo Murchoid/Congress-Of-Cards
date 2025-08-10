@@ -1,5 +1,5 @@
 @url=http://localhost:3000
-@auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZjVmMTJlNC00NzA4LTQzMjAtOTYxMS0zODM4NjJhYmUyN2QiLCJlbWFpbCI6Im1pY2hhZWxAZXhhbXBsZS5jb20iLCJ1c2VybmFtZSI6Ik1pY2hhZWwiLCJpc0FjdGl2ZSI6dHJ1ZSwiaWF0IjoxNzU0NjU3MzMwLCJleHAiOjE3NTQ2NTczMzZ9.XePFdbF7JzAmGBOlaofjM_mBjufABgOCZW6LjeDhB1g
+@auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZjVmMTJlNC00NzA4LTQzMjAtOTYxMS0zODM4NjJhYmUyN2QiLCJlbWFpbCI6Im1pY2hhZWxAZXhhbXBsZS5jb20iLCJ1c2VybmFtZSI6Ik1pY2hhZWwiLCJpc0FjdGl2ZSI6dHJ1ZSwiaWF0IjoxNzU0ODA5MzYyLCJleHAiOjE3NTQ4MDkzNjh9.WqC0Qk1x4xv469ojxi_FQDFIh1625CcXnYN5UnZMn-k
 
 ###Create users
 POST {{url}}/users/register
@@ -16,7 +16,7 @@ GET {{url}}/users
 Authorization: Bearer {{auth}}
 
 
-###Create users
+###Sign in user
 POST {{url}}/auths/signin
 Content-Type: application/json
 
